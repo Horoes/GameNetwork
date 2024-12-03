@@ -1,27 +1,38 @@
 using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Playables;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class AbilityManager : MonoBehaviourPunCallbacks
 {
-    public string[] playerAbilities = new string[2];    // 각 플레이어 능력
+    public List<Ability> allAbilities; // 모든 능력 리스트
+    public List<Ability> currentAbilities; // 현재 선택 가능한 능력 리스트
+ 
 
-    // 능력 선택
-    public void SelectInitialAbility(string abilityName)
+    private void Start()
     {
-        int playerIndex = PhotonNetwork.LocalPlayer.ActorNumber - 1;
-        playerAbilities[playerIndex] = abilityName;
-
-        photonView.RPC("SyncAbility", RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber, abilityName);
-        Debug.Log($"플레이어 {playerIndex + 1}이 능력을 선택하였습니다: {abilityName}");
+        InitializeAbilities();
     }
 
-    [PunRPC]
-    public void SyncAbility(int actorNumber,string abilityName)
+    public void InitializeAbilities()
     {
-        int playerIndex = actorNumber - 1;
-        playerAbilities[playerIndex] = abilityName;
-        Debug.Log($"플레이어 {playerIndex + 1} 능력 동기화..: {abilityName}");
+        // 선택 가능한 능력 리스트 초기화
+        currentAbilities = new List<Ability>(allAbilities);
+    }
+
+    public Ability GetRandomAbility()
+    {
+        if (currentAbilities.Count == 0)
+        {
+            Debug.LogWarning("선택 가능한 능력이 없습니다.");
+            return null;
+        }
+
+        int randomIndex = Random.Range(0, currentAbilities.Count);
+        Ability randomAbility = currentAbilities[randomIndex];
+        currentAbilities.RemoveAt(randomIndex);
+        return randomAbility;
     }
 }
