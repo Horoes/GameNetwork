@@ -204,8 +204,8 @@ public class PhotonInit : MonoBehaviourPunCallbacks
        
         if (VisitEmptyName != null)
         {
-            VisitPlayer.gameObject.SetActive(false);
-            VisitEmptyName.gameObject.SetActive(true);
+            VisitPlayer.gameObject.SetActive(false);        // 방문자 이름 off
+            VisitEmptyName.gameObject.SetActive(true);      // 이름 내용: "비어있음"
         }
         if(!RoomExitBtn.gameObject.activeSelf)
         {
@@ -222,6 +222,7 @@ public class PhotonInit : MonoBehaviourPunCallbacks
         Debug.Log($"{newPlayer.NickName}님이 방에 입장했습니다.");
         Debug.Log($"현재 플레이어 수: {PhotonNetwork.CurrentRoom.PlayerCount}/{PhotonNetwork.CurrentRoom.MaxPlayers}");
 
+        // 방장이 방문자 TEXT UI를 업데이트 해준다.
         // 방문자 텍스트 UI 업데이트
         if (VisitEmptyName != null && VisitPlayer != null)
         {
@@ -341,13 +342,13 @@ public class PhotonInit : MonoBehaviourPunCallbacks
             HostPlayer.text = hostPlayerName ?? "알 수 없음";
         }
 
-        // 현재 플레이어가 입장한 닉네임을 방문자로 표시
-        if (VisitEmptyName != null && VisitPlayer != null)
-        {
-            VisitPlayer.text = PhotonNetwork.LocalPlayer.NickName; // 현재 플레이어의 닉네임
-            VisitEmptyName.gameObject.SetActive(false);
-            VisitPlayer.gameObject.SetActive(true);
-        }
+        //// 현재 플레이어가 입장한 닉네임을 방문자로 표시
+        //if (VisitEmptyName != null && VisitPlayer != null)
+        //{
+        //    VisitPlayer.text = PhotonNetwork.LocalPlayer.NickName; // 현재 플레이어의 닉네임
+        //    VisitEmptyName.gameObject.SetActive(false);
+        //    VisitPlayer.gameObject.SetActive(true);
+        //}
 
         // 방이 꽉 찼을 때 게임 시작 조건 체크
         if (PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers)
