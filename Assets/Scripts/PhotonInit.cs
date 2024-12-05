@@ -11,7 +11,6 @@ public class PhotonInit : MonoBehaviourPunCallbacks
 {
     // �̱��� ������ ������ �ؾ� ��
     public static PhotonInit instance;
-
     public InputField playerInput;
     bool isGameStart = false;
     bool isLoggIn = false;
@@ -26,9 +25,10 @@ public class PhotonInit : MonoBehaviourPunCallbacks
     Text connectionInfoText;
 
     [Header("LobbyCanvas")] public GameObject LobbyCanvas;
-     public GameObject[] roomPrefabsArray; // Room 프리팹들
+    public GameObject[] roomPrefabsArray; // Room 프리팹들
     public GameObject LoginPopup;
     public GameObject MakeRoomPanel;
+    public GameObject FullRoomImage;
     public GameObject LobbyPopup;
     public GameObject RoomPopup;
     public InputField RoomInput;
@@ -47,14 +47,123 @@ public class PhotonInit : MonoBehaviourPunCallbacks
     //public Button NextBtn;
     public Button CreateRoomBtn;
     public MakingRoom makingRoom;
-  
+
     public int hashtablecount;
 
     public int currentRoomIndex;
     private int[] roomCounts;
+
+    // 플레이어 점수 관리
+    public GameObject gameEndPopup;
+    public GameObject roundEndPopup;        // 라운드 종료 Popup 이미지 UI
+    public GameObject[] playerRoundWins;    // 라운드 승리   UI
+    public GameObject[] playerWinIcons;     // 점수 아이콘   UI
+    public GameObject[] playerGameWins;     // 플레이어 최종 승리 UI
+    public int[] playerScores = new int[2];
+    public int winningScore = 3;
+
+    public bool isRoundActive = false;
+
     // �������� �� ����Ʈ�� �����ϴ� ����
     public List<RoomInfo> myList = new List<RoomInfo>();
     int currentPage = 1, maxPage, multiple, roomnumber;
+
+    public void EndRound(int winningPlayerIndex)    // 라운드 종료 시 실행
+    {
+        if (isRoundActive)
+            return;
+        isRoundActive = true;
+
+        // 점수 업데이트
+        playerScores[winningPlayerIndex]++;
+        Debug.Log($"Player {winningPlayerIndex + 1} 점수: {playerScores[winningPlayerIndex]}");
+
+        StartCoroutine(ShowRoundEndUI(winningPlayerIndex));
+
+    }
+
+    private IEnumerator ShowRoundEndUI(int winningPlayerIndex)  // 라운드 종료 시 점수 업데이트 
+    {
+        // RoundEndPopup 활성화 (라운드 승리 UI)
+        GameObject roundEndPopup = GameObject.Find("RoundEndPopup");
+        GameObject winnerUI = roundEndPopup.transform.Find($"P{winningPlayerIndex + 1}_RoundWin").gameObject;
+
+        roundEndPopup.SetActive(true);
+        winnerUI.SetActive(true);
+
+        yield return new WaitForSeconds(2f);
+
+        // 점수 아이콘 업데이트(활성화)
+        GameObject scoreLayout = GameObject.Find($"P{winningPlayerIndex + 1}_ScoreLayout");
+        GameObject winIcon = scoreLayout.transform.Find($"WinIcon").gameObject;
+        winIcon.SetActive(true);
+
+        yield return new WaitForSeconds(2f);
+
+        // UI 초기화
+        winnerUI.SetActive(false);
+        roundEndPopup.SetActive(false);
+
+
+
+        if (playerScores[winningPlayerIndex] >= winningScore)
+        {
+            HandleGameEnd(winningPlayerIndex);
+        }
+        else
+        {
+            // 다음 라운드 준비 (AbilitySelectScene으로 이동)
+            PhotonNetwork.LoadLevel("AbilitySelectScene");
+            isRoundActive = false;
+        }
+
+    }
+
+    private void HandleGameEnd(int winningPlayerIndex)
+    {
+        // 최종 승리 UI 활성화
+        gameEndPopup.SetActive(true);
+        playerGameWins[winningPlayerIndex].SetActive(true);
+
+        StartCoroutine(HandleGameEndUI());
+    }
+
+    private IEnumerator HandleGameEndUI()
+    {
+        yield return new WaitForSeconds(2f);
+
+        // 점수 초기화
+        ResetGame();
+
+        // 로비로 돌아가기
+        PhotonNetwork.LoadLevel("LobbyScene");
+
+
+    }
+
+    private void ResetGame()            // UI들 초기화
+    {
+        playerScores = new int[2];
+        isRoundActive = false;
+
+        // 점수 UI 초기화
+        foreach (var winIcon in playerWinIcons)
+        {
+            winIcon.SetActive(false);
+        }
+
+        // 라운드 및 게임 종료 UI 초기화
+        foreach (var roundWin in playerRoundWins)
+        {
+            roundWin.SetActive(false);
+        }
+
+        gameEndPopup.SetActive(false);
+        foreach (var gameWin in playerGameWins)
+        {
+            gameWin.SetActive(false);
+        }
+    }
 
     private void Awake()
     {
@@ -128,7 +237,7 @@ public class PhotonInit : MonoBehaviourPunCallbacks
     }
     public void RoomGotoLobby()
     {
-      
+
         string roomName = PhotonNetwork.CurrentRoom.Name;
         // RoomIndex를 이용해 관련 Room 오브젝트를 찾기
         int roomIndex = GetRoomIndexByName(roomName);
@@ -140,11 +249,11 @@ public class PhotonInit : MonoBehaviourPunCallbacks
 
         Debug.Log("방을 나왔습니다.");
         PhotonNetwork.LeaveRoom();                  // 방을 떠났을 때
-       
-        
+
+
         RoomPopup.SetActive(false);
         //LobbyPopup.SetActive(true);
-        
+
         PhotonNetwork.JoinLobby();
     }
     // Room UI 텍스트 초기화 함수
@@ -180,7 +289,7 @@ public class PhotonInit : MonoBehaviourPunCallbacks
             makingRoom.roomCount.text = $"{activeRoomCount}/7"; // 7은 최대 방 개수
         }
 
-    
+
     }
     private int GetRoomIndexByName(string roomName)     // 방 이름을 기준으로 생성된 방들의 인덱스를 찾는 함수
     {
@@ -198,16 +307,16 @@ public class PhotonInit : MonoBehaviourPunCallbacks
         }
         return -1; // 찾지 못한 경우 -1 반환
     }
-    
+
     public override void OnPlayerLeftRoom(Photon.Realtime.Player newPlayer)     // 방에 들어온 플레이어가 방을 나갔을 때
     {
-       
+
         if (VisitEmptyName != null)
         {
             VisitPlayer.gameObject.SetActive(false);        // 방문자 이름 off
             VisitEmptyName.gameObject.SetActive(true);      // 이름 내용: "비어있음"
         }
-        if(!RoomExitBtn.gameObject.activeSelf)
+        if (!RoomExitBtn.gameObject.activeSelf)
         {
             RoomExitBtn.gameObject.SetActive(true);
         }
@@ -215,6 +324,10 @@ public class PhotonInit : MonoBehaviourPunCallbacks
         GameStartText.gameObject.SetActive(false);
         Debug.Log("플레이어가 방을 떠났습니다: " + newPlayer.NickName);
         //OnPlayerLeave(currentRoomIndex - 1);
+
+        // 방이 비었는지 확인하고 UI 업데이트
+        bool isAnyRoomAvailable = myList.Exists(room => room.PlayerCount < room.MaxPlayers);
+        UpdateFullRoomUI();
     }
 
     public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer)
@@ -237,7 +350,7 @@ public class PhotonInit : MonoBehaviourPunCallbacks
             WaitText.gameObject.SetActive(false);
             GameStartText.gameObject.SetActive(true);
             RoomExitBtn.gameObject.SetActive(false);
-            isGameStart = true;
+            //isGameStart = true;
             StartCoroutine(LoadAbilitySelectScene());
             // 씬 로드
         }
@@ -247,12 +360,17 @@ public class PhotonInit : MonoBehaviourPunCallbacks
             WaitText.gameObject.SetActive(true);
             GameStartText.gameObject.SetActive(false);
         }
+
+        // 방 상태 다시 확인
+        bool isAnyRoomAvailable = myList.Exists(room => room.PlayerCount < room.MaxPlayers);
+        UpdateFullRoomUI();
     }
 
 
     public void Connect()
     {
-        PhotonNetwork.NickName=playerInput.text;
+
+        PhotonNetwork.NickName = playerInput.text;
         Debug.Log("Connect 성공!");
         if (PhotonNetwork.IsConnected)
         {
@@ -372,6 +490,7 @@ public class PhotonInit : MonoBehaviourPunCallbacks
     }
     private IEnumerator LoadAbilitySelectScene()
     {
+        isRoundActive = false;
         yield return new WaitForSeconds(2f); // 2초 대기
         PhotonNetwork.LoadLevel("AbilitySelectScene"); // AbilitySelectScene으로 이동
     }
@@ -381,28 +500,20 @@ public class PhotonInit : MonoBehaviourPunCallbacks
         PlayerPrefs.SetInt("LogIn", 0);
     }
 
-  
+
 
     private void Update()
     {
-        //if (PlayerPrefs.GetInt("LogIn") == 1)
-        //{
-        //    isLoggIn = true;
+        if (PlayerPrefs.GetInt("LogIn") == 1)
+        {
+            isLoggIn = true;
 
-        //}
-        //if (isGameStart == false && SceneManager.GetActiveScene().name == "AbilitySelectScene" && isLoggIn == true)        // 현재 씬이 SampleScene이고 boo 변수 조건 맞음 게임 스타트 한 후 플레이어 생성
-        //{
-        //    isGameStart = true;
-        //    if (GameObject.Find("ChatText") != null)
-        //        chatText = GameObject.Find("ChatText").GetComponent<Text>();
-
-        //    if (GameObject.Find("Scroll View") != null)
-        //        scroll_rect = GameObject.Find("Scroll View").GetComponent<ScrollRect>();
-
-        //    playerName = PlayerPrefs.GetString("Player");
-        //    PlayerPrefs.SetString("Player", "");
-        //    StartCoroutine(CreatePlayer());
-        //}
+        }
+        if (SceneManager.GetActiveScene().name == "BattleScene" && !isGameStart && isLoggIn)
+        {
+            isGameStart = true;
+            StartCoroutine(CreatePlayer()); // 플레이어 생성 코루틴 실행
+        }
     }
 
     IEnumerator CreatePlayer()
@@ -412,16 +523,47 @@ public class PhotonInit : MonoBehaviourPunCallbacks
             yield return new WaitForSeconds(0.5f);
         }
 
-        GameObject tempPlayer = PhotonNetwork.Instantiate("PlayerDagger",
-                                    new Vector3(0, 0, 0),
-                                    Quaternion.identity,
-                                    0);
-        print(playerName);
-        tempPlayer.GetComponent<PlayerCtrl>().SetPlayerName(playerName);
-        pv = GetComponent<PhotonView>();
+        // 정해진 스폰 위치 설정
+        GameObject spawnPoint = PhotonNetwork.IsMasterClient
+          ? GameObject.Find("SpawnPoint1") // MasterClient가 사용하는 스폰 포인트
+          : GameObject.Find("SpawnPoint2"); // Non-MasterClient가 사용하는 스폰 포인트
+
+        if (spawnPoint == null)
+        {
+            Debug.LogError("SpawnPoint를 찾을 수 없습니다!");
+            yield break;
+        }
+
+        // UI의 위치 가져오기
+        RectTransform spawnRect = spawnPoint.GetComponent<RectTransform>();
+        if (spawnRect == null)
+        {
+            Debug.LogError("SpawnPoint에 RectTransform 컴포넌트가 없습니다!");
+            yield break;
+        }
+
+        Vector3 spawnPosition = spawnRect.anchoredPosition;
+
+        // 플레이어 인덱스에 따라 스폰 위치를 설정
+        string prefabName = PhotonNetwork.IsMasterClient ? "Player1" : "Player2"; // 마스터 클라이언트는 0, 다른 클라이언트는 1
+
+        // Instantiate 및 캔버스 자식으로 설정
+        GameObject player = PhotonNetwork.Instantiate(prefabName, Vector3.zero, Quaternion.identity);
+        player.transform.SetParent(GameObject.Find("Canvas").transform, false);    // 생성된 오브젝트를 Canvas 자식으로 설정
+
+        // 생성된 플레이어의 RectTransform 위치 설정
+        RectTransform playerRect = player.GetComponent<RectTransform>();
+        playerRect.anchoredPosition = spawnPosition;
+
+        Debug.Log($"Player {prefabName} spawned at {spawnPosition}");
+
+        // 플레이어 이름 설정
+        playerRect.GetComponent<PlayerCtrl>().SetPlayerName(playerName);
 
         yield return null;
     }
+
+
     public override void OnConnectedToMaster()
     {
         Debug.Log("마스터 서버 입장");
@@ -508,153 +650,6 @@ public class PhotonInit : MonoBehaviourPunCallbacks
         }
     }
 
-
-    //public void CreateRoom()
-    //{
-    //     PhotonNetwork.CreateRoom(RoomInput.text == "" ? "Game" + Random.Range(0, 100) : RoomInput.text,
-    //            new RoomOptions { MaxPlayers = 20 });
-    //    LobbyPanel.SetActive(false);
-    //}
-
-    //���ο� �� �����
-    //public void CreateNewRoom()           // 교수님 방 생성 코드 (CreateNewRoom은 커스텀 메서드라, 비밀번호 같이 추가 기능을 걸 때)
-    //{
-
-    //    RoomOptions roomOptions = new RoomOptions();
-    //    roomOptions.MaxPlayers = 20;
-    //    roomOptions.CustomRoomProperties = new Hashtable()
-    //    {
-    //        {"password", RoomPwInput.text}
-    //    };
-    //    roomOptions.CustomRoomPropertiesForLobby = new string[] { "password" };
-
-    //    if (PwToggle.isOn)
-    //    {
-    //        PhotonNetwork.CreateRoom(RoomInput.text == "" ? "Game" + Random.Range(0, 100) : "*" + RoomInput.text,
-    //            roomOptions);
-    //    }
-
-    //    else
-    //    {
-    //        PhotonNetwork.CreateRoom(RoomInput.text == "" ? "Game" + Random.Range(0, 100) : RoomInput.text,
-    //            new RoomOptions { MaxPlayers = 20 });
-    //    }
-
-    //    MakeRoomPanel.SetActive(false);
-    //    //LobbyCanvas.SetActive(false);
-
-
-
-    //}
-
-
-    // ����ư -2 , ����ư -1 , �� ����
-    //public void MyListClick(int num)
-    //{
-
-    //    if (num == -2)
-    //    {
-    //        --currentPage;
-    //        MyListRenewal();
-    //    }
-    //    else if (num == -1)
-    //    {
-    //        ++currentPage;
-    //        MyListRenewal();
-    //    }
-
-    //    else if (myList[multiple + num].CustomProperties["password"] != null)
-    //    {
-    //        PwPanel.SetActive(true);
-    //    }
-    //    else
-    //    {
-    //        PhotonNetwork.JoinRoom(myList[multiple + num].Name);
-    //        MyListRenewal();
-
-    //    }
-
-    //}
-
-    //public void RoomPw(int number)
-    //{
-    //    switch (number)
-    //    {
-    //        case 0:
-    //            roomnumber = 0;
-    //            break;
-    //        case 1:
-    //            roomnumber = 1;
-    //            break;
-    //        case 2:
-    //            roomnumber = 2;
-    //            break;
-    //        case 3:
-    //            roomnumber = 3;
-    //            break;
-
-    //        default:
-    //            break;
-    //    }
-
-
-    //}
-
-    //public void EnterRoomWithPW()
-    //{
-    //    if ((string)myList[multiple + roomnumber].CustomProperties["password"] == PwCheckIF.text)
-    //    {
-    //        PhotonNetwork.JoinRoom(myList[multiple + roomnumber].Name);
-    //        MyListRenewal();
-    //        PwPanel.SetActive(false);
-    //    }
-
-    //    else
-    //    {
-    //        StartCoroutine("ShowPwWrongMsg");
-    //    }
-
-
-    //}
-
-    //IEnumerator ShowPwWrongMsg()
-    //{
-    //    if (!PwErrorLog.activeSelf)
-    //    {
-    //        PwErrorLog.SetActive(true);
-    //        yield return new WaitForSeconds(3.0f);
-    //        PwErrorLog.SetActive(false);
-    //    }
-    //}
-
-
-
-    //void MyListRenewal()
-    //{
-    //    Debug.Log($"Renewing list: {myList.Count} rooms.");
-
-    //    multiple = (currentPage - 1) * CellBtn.Length;
-    //    for (int i = 0; i < CellBtn.Length; i++)
-    //    {
-    //        bool isActive = multiple + i < myList.Count;
-    //        CellBtn[i].interactable = isActive;
-
-    //        if (isActive)
-    //        {
-    //            var roomInfo = myList[multiple + i];
-    //            Text roomText = CellBtn[i].transform.GetChild(0).GetComponent<Text>();
-    //            if (roomText != null)
-    //            {
-    //                roomText.text = roomInfo.Name;
-    //                Debug.Log($"Updated Button {i}: {roomInfo.Name}");
-    //            }
-    //            else
-    //            {
-    //                Debug.LogError($"Button {i} is missing a Text component.");
-    //            }
-    //        }
-    //    }
-    //}
     void MyListRenewal()
     {
         Debug.Log("Renewing list...");
@@ -695,6 +690,7 @@ public class PhotonInit : MonoBehaviourPunCallbacks
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
         Debug.Log($"OnRoomListUpdate: {roomList.Count} rooms updated.");
+        int activeRoomCount = 0;
         foreach (var room in roomList)
         {
             Debug.Log($"Room: {room.Name}, Removed: {room.RemovedFromList}, Players: {room.PlayerCount}/{room.MaxPlayers}");
@@ -712,6 +708,11 @@ public class PhotonInit : MonoBehaviourPunCallbacks
             {
                 myList.RemoveAt(myList.IndexOf(roomList[i]));
             }
+
+            if (roomList[i].PlayerCount == roomList[i].MaxPlayers)
+            {
+                activeRoomCount++;
+            }
         }
         Debug.Log($"OnRoomListUpdate: {roomList.Count} rooms updated.");
         foreach (var room in roomList)
@@ -719,8 +720,36 @@ public class PhotonInit : MonoBehaviourPunCallbacks
             Debug.Log($"Room: {room.Name}, Removed: {room.RemovedFromList}, Players: {room.PlayerCount}/{room.MaxPlayers}");
         }
 
+        UpdateFullRoomUI();
+
         MyListRenewal();
     }
+
+    private void UpdateFullRoomUI()
+    {
+        int activeRoomCount = 0; // 활성화된 방 개수를 세는 변수
+
+        foreach (GameObject roomPrefab in roomPrefabsArray)
+        {
+            if (roomPrefab.activeSelf) // 활성화된 방인지 확인
+            {
+                activeRoomCount++;
+            }
+        }
+
+        // 활성화된 방의 개수가 roomPrefabsArray 길이와 같다면 모든 방이 활성화된 상태
+        if (activeRoomCount == 7)
+        {
+            FullRoomImage.SetActive(true);
+            Debug.Log($"모든 방이 활성화되었습니다! FullRoomImage 활성화. (활성화된 방 개수: {activeRoomCount})");
+        }
+        else
+        {
+            FullRoomImage.SetActive(false);
+            Debug.Log($"아직 모든 방이 활성화되지 않았습니다. FullRoomImage 비활성화. (활성화된 방 개수: {activeRoomCount})");
+        }
+    }
+
     //public override void OnRoomListUpdate(List<RoomInfo> roomList)
     //{
     //    Debug.Log("OnRoomListUpdate:" + roomList.Count);

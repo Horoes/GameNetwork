@@ -1349,88 +1349,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 14e83f738ae6ede48987e0368a33025b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &687696296
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 687696298}
-  - component: {fileID: 687696297}
-  m_Layer: 0
-  m_Name: PhotonManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &687696297
+--- !u!114 &687696297 stripped
 MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+  m_PrefabInstance: {fileID: 4919257664110333252}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 687696296}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 434701221aa169f428585d9cbb218a25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerInput: {fileID: 2065157453}
-  chatMessage: 
-  LobbyCanvas: {fileID: 1093129965}
-  roomPrefabsArray:
-  - {fileID: 556441406}
-  - {fileID: 1440725054}
-  - {fileID: 1829214210}
-  - {fileID: 1479829558}
-  - {fileID: 559542543}
-  - {fileID: 2021665879}
-  - {fileID: 1719041157}
-  LoginPopup: {fileID: 1841385773}
-  MakeRoomPanel: {fileID: 1490531631}
-  LobbyPopup: {fileID: 1024059396}
-  RoomPopup: {fileID: 505987914}
-  RoomInput: {fileID: 1244815288}
-  RoomPwInput: {fileID: 0}
-  WaitText: {fileID: 337911331}
-  GameStartText: {fileID: 225141888}
-  RoomNameTitle: {fileID: 820682823}
-  HostPlayer: {fileID: 2031382106}
-  VisitPlayer: {fileID: 1437671780}
-  VisitEmptyName: {fileID: 126009371}
-  RoomExitBtn: {fileID: 1709948005}
-  LockState: 0
-  privateroom: 
-  CellBtn:
-  - {fileID: 4866395681872386152}
-  - {fileID: 1440725057}
-  - {fileID: 1829214213}
-  - {fileID: 1479829561}
-  - {fileID: 1164260310}
-  - {fileID: 2021665882}
-  - {fileID: 1962135733}
-  CreateRoomBtn: {fileID: 1788660203}
-  makingRoom: {fileID: 698611501}
-  hashtablecount: 0
-  currentRoomIndex: 0
---- !u!4 &687696298
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 687696296}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &698611496
 GameObject:
   m_ObjectHideFlags: 0
@@ -5165,6 +5094,192 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1001 &4919257664110333252
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: WaitText
+      value: 
+      objectReference: {fileID: 337911331}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: RoomInput
+      value: 
+      objectReference: {fileID: 1244815288}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: RoomPopup
+      value: 
+      objectReference: {fileID: 505987914}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: HostPlayer
+      value: 
+      objectReference: {fileID: 2031382106}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: LobbyPopup
+      value: 
+      objectReference: {fileID: 1024059396}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: LoginPopup
+      value: 
+      objectReference: {fileID: 1841385773}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: makingRoom
+      value: 
+      objectReference: {fileID: 698611501}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: LobbyCanvas
+      value: 
+      objectReference: {fileID: 1093129965}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: RoomExitBtn
+      value: 
+      objectReference: {fileID: 1709948005}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: VisitPlayer
+      value: 
+      objectReference: {fileID: 1437671780}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: playerInput
+      value: 
+      objectReference: {fileID: 2065157453}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: CreateRoomBtn
+      value: 
+      objectReference: {fileID: 1788660203}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: FullRoomImage
+      value: 
+      objectReference: {fileID: 261598465}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: GameStartText
+      value: 
+      objectReference: {fileID: 225141888}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: MakeRoomPanel
+      value: 
+      objectReference: {fileID: 1490531631}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: RoomNameTitle
+      value: 
+      objectReference: {fileID: 820682823}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: VisitEmptyName
+      value: 
+      objectReference: {fileID: 126009371}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: CellBtn.Array.data[0]
+      value: 
+      objectReference: {fileID: 4866395681872386152}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: CellBtn.Array.data[1]
+      value: 
+      objectReference: {fileID: 1440725057}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: CellBtn.Array.data[2]
+      value: 
+      objectReference: {fileID: 1829214213}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: CellBtn.Array.data[3]
+      value: 
+      objectReference: {fileID: 1479829561}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: CellBtn.Array.data[4]
+      value: 
+      objectReference: {fileID: 1164260310}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: CellBtn.Array.data[5]
+      value: 
+      objectReference: {fileID: 2021665882}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: CellBtn.Array.data[6]
+      value: 
+      objectReference: {fileID: 1962135733}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: roomPrefabsArray.Array.data[0]
+      value: 
+      objectReference: {fileID: 556441406}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: roomPrefabsArray.Array.data[1]
+      value: 
+      objectReference: {fileID: 1440725054}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: roomPrefabsArray.Array.data[2]
+      value: 
+      objectReference: {fileID: 1829214210}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: roomPrefabsArray.Array.data[3]
+      value: 
+      objectReference: {fileID: 1479829558}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: roomPrefabsArray.Array.data[4]
+      value: 
+      objectReference: {fileID: 559542543}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: roomPrefabsArray.Array.data[5]
+      value: 
+      objectReference: {fileID: 2021665879}
+    - target: {fileID: 1639665445008599805, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: roomPrefabsArray.Array.data[6]
+      value: 
+      objectReference: {fileID: 1719041157}
+    - target: {fileID: 5213377672511487001, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: m_Name
+      value: PhotonManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 8039905935054213998, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: sceneViewId
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8713615462019582316, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8713615462019582316, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8713615462019582316, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8713615462019582316, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8713615462019582316, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8713615462019582316, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8713615462019582316, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8713615462019582316, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8713615462019582316, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8713615462019582316, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 8039905935054213998, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
 --- !u!224 &5367922431822289996 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3990724861911014066, guid: 856061a1dc6d1284c8340cbd84544f92, type: 3}
@@ -5177,4 +5292,4 @@ SceneRoots:
   - {fileID: 107093225}
   - {fileID: 1093129969}
   - {fileID: 1765025841}
-  - {fileID: 687696298}
+  - {fileID: 4919257664110333252}
