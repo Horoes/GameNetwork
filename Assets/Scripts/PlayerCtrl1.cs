@@ -5,17 +5,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerCtrl1 : MonoBehaviourPunCallbacks,IPunObservable
+public class PlayerCtrl1 : MonoBehaviourPunCallbacks, IPunObservable
 {
 
     private int maxHp = 100;
     private int currentHp;
-    private float speed = 150f;         // 이동 속도
-    private float jumpforce = 250f;   // 점프 힘
+    private float speed = 10f;         // 이동 속도
+    private float jumpforce = 13f;   // 점프 힘
     private Rigidbody2D rb;
     private Vector2 input;
     private Vector2 networkPosition;
     private bool isGrounded = false; // 바닥 여부
+
 
     private void Awake()
     {
@@ -24,6 +25,7 @@ public class PlayerCtrl1 : MonoBehaviourPunCallbacks,IPunObservable
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        rb.velocity = Vector2.zero;
         currentHp = maxHp;
     }
 
@@ -63,13 +65,14 @@ public class PlayerCtrl1 : MonoBehaviourPunCallbacks,IPunObservable
         {
             rb.position = Vector2.Lerp(rb.position, networkPosition, Time.fixedDeltaTime * 10f);
         }
-        
+
     }
 
     private void Jump()
     {
         rb.velocity = new Vector2(rb.velocity.x, jumpforce); // Y축 속도 설정
         isGrounded = false; // 점프 상태
+
     }
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)      // 데이터 동기화, PhotonView로 관리되는 객체 데이터 송수신
     {
@@ -90,7 +93,7 @@ public class PlayerCtrl1 : MonoBehaviourPunCallbacks,IPunObservable
         if (photonView.IsMine)
         {
             currentHp -= damage;
-            if (currentHp < 0) 
+            if (currentHp < 0)
                 currentHp = 0;
             Debug.Log($"HP: {currentHp}");
         }
@@ -98,12 +101,12 @@ public class PlayerCtrl1 : MonoBehaviourPunCallbacks,IPunObservable
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Ground"))
+        if (collision.gameObject.tag == "Walls")
         {
-            isGrounded = true; // 바닥에 닿으면 점프 가능
-            Debug.Log("Grounded!");
+            isGrounded = true;
+
         }
     }
 
-  
+
 }
