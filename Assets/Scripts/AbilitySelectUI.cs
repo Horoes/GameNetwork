@@ -84,18 +84,23 @@ public class AbilitySelectUI : MonoBehaviourPunCallbacks
             string selectedAbilityName = (string)data[0];
             int playerID = (int)data[1];
 
-            if (playerID == 1)
+            if (playerID == 1 && !abilityManager.player1Abilities.Contains(selectedAbilityName))
             {
                 abilityManager.player1Abilities.Add(selectedAbilityName);
+                abilityManager.player1Ready = true;
             }
-            else if (playerID == 2)
+            else if (playerID == 2 && !abilityManager.player2Abilities.Contains(selectedAbilityName))
             {
                 abilityManager.player2Abilities.Add(selectedAbilityName);
+                abilityManager.player2Ready = true;
             }
 
+            // 선택된 능력을 제거
             abilityManager.currentAbilities.RemoveAll(a => a.abilityName == selectedAbilityName);
+
             Debug.Log($"플레이어 {playerID}가 능력 {selectedAbilityName}을 선택했습니다.");
 
+            // UI 갱신
             InitializeButtons();
         }
     }

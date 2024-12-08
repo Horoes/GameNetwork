@@ -10,6 +10,7 @@ using Hashtable = ExitGames.Client.Photon.Hashtable;
 public class PhotonInit : MonoBehaviourPunCallbacks
 {
     // �̱��� ������ ������ �ؾ� ��
+    public GameObject playerPrefab;
     public static PhotonInit instance;
     public InputField playerInput;
     bool isGameStart = false;
@@ -68,6 +69,11 @@ public class PhotonInit : MonoBehaviourPunCallbacks
     public List<RoomInfo> myList = new List<RoomInfo>();
     int currentPage = 1, maxPage, multiple, roomnumber;
 
+    private void Start()
+    {
+
+        RoomPopup.SetActive(false);
+    }
     public void EndRound(int winningPlayerIndex)    // 라운드 종료 시 실행
     {
         if (isRoundActive)
@@ -164,7 +170,7 @@ public class PhotonInit : MonoBehaviourPunCallbacks
             gameWin.SetActive(false);
         }
     }
-
+   
     private void Awake()
     {
         if (instance == null)
@@ -202,6 +208,7 @@ public class PhotonInit : MonoBehaviourPunCallbacks
 
         DontDestroyOnLoad(gameObject);
     }
+
     void OnCreateButtonClick()
     {
         if (!PhotonNetwork.IsConnectedAndReady)
@@ -308,21 +315,19 @@ public class PhotonInit : MonoBehaviourPunCallbacks
         return -1; // 찾지 못한 경우 -1 반환
     }
 
-    public override void OnPlayerLeftRoom(Photon.Realtime.Player newPlayer)     // 방에 들어온 플레이어가 방을 나갔을 때
+    public override void OnPlayerLeftRoom(Photon.Realtime.Player otherPlayer)     // 방에 들어온 플레이어가 방을 나갔을 때
     {
 
-        if (VisitEmptyName != null)
-        {
-            VisitPlayer.gameObject.SetActive(false);        // 방문자 이름 off
-            VisitEmptyName.gameObject.SetActive(true);      // 이름 내용: "비어있음"
-        }
-        if (!RoomExitBtn.gameObject.activeSelf)
-        {
-            RoomExitBtn.gameObject.SetActive(true);
-        }
+        base.OnPlayerLeftRoom(otherPlayer);
+        Debug.Log($"{otherPlayer.NickName}님이 방을 떠났습니다.");
+
+        // 플레이어 이름 업데이트
+        UpdatePlayerNames();
+
+        // 기존 로직 유지
         WaitText.gameObject.SetActive(true);
         GameStartText.gameObject.SetActive(false);
-        Debug.Log("플레이어가 방을 떠났습니다: " + newPlayer.NickName);
+
         //OnPlayerLeave(currentRoomIndex - 1);
 
         // 방이 비었는지 확인하고 UI 업데이트
@@ -337,26 +342,18 @@ public class PhotonInit : MonoBehaviourPunCallbacks
 
         // 방장이 방문자 TEXT UI를 업데이트 해준다.
         // 방문자 텍스트 UI 업데이트
-        if (VisitEmptyName != null && VisitPlayer != null)
-        {
-            VisitPlayer.text = newPlayer.NickName; // 입장한 플레이어의 닉네임 표시
-            VisitEmptyName.gameObject.SetActive(false);
-            VisitPlayer.gameObject.SetActive(true);
-        }
+        UpdatePlayerNames();
 
-        // 게임 시작 UI 트리거 조건
+        // 기존 로직 유지
         if (PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers)
         {
             WaitText.gameObject.SetActive(false);
             GameStartText.gameObject.SetActive(true);
             RoomExitBtn.gameObject.SetActive(false);
-            //isGameStart = true;
             StartCoroutine(LoadAbilitySelectScene());
-            // 씬 로드
         }
         else
         {
-            // 방이 아직 꽉 차지 않은 경우 대기 텍스트 표시
             WaitText.gameObject.SetActive(true);
             GameStartText.gameObject.SetActive(false);
         }
@@ -420,37 +417,100 @@ public class PhotonInit : MonoBehaviourPunCallbacks
         base.OnJoinedLobby();
         Debug.Log("로비에 성공적으로 입장했습니다.");
     }
+    //public void OnAllPlayersReady()
+    //{
+    //    if (RoomPopup == null)
+    //    {
+    //        GameObject canvas = GameObject.Find("Canvas");
+    //        if (canvas != null)
+    //        {
+    //            RoomPopup = FindInactiveObjectByName(canvas.transform, "RoomPopup");
+    //            if (RoomPopup != null)
+    //            {
+    //                RoomPopup.SetActive(true); // RoomPopup 활성화
+    //            }
+    //            else
+    //            {
+    //                Debug.LogError("RoomPopup을 찾을 수 없습니다.");
+    //            }
+    //        }
+    //    }
+
+
+    //    3초 후 FirstMapScene으로 이동
+    //    StartCoroutine(LoadFirstMapScene());
+    //}
+    // Helper 함수: 비활성화된 자식 오브젝트 찾기
+    private GameObject FindInactiveObjectByName(Transform parent, string name)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child.name == name)
+            {
+                return child.gameObject;
+            }
+            GameObject result = FindInactiveObjectByName(child, name);
+            if (result != null)
+            {
+                return result;
+            }
+        }
+        return null;
+    }
+    //private IEnumerator LoadFirstMapScene()
+    //{
+    //    yield return new WaitForSeconds(3f);
+    //    PhotonNetwork.LoadLevel("FirstMapScene");
+    //}
     public override void OnJoinedRoom()
     {
         base.OnJoinedRoom();
-        connectionState = "Joined Room";
-        if (connectionInfoText)
-            connectionInfoText.text = connectionState;
         Debug.Log("방에 입장했습니다.");
-        isLoggIn = true;
 
-        GameObject createBtn = GameObject.Find("CreateBtn");
-
-        UpdatePlayerCount(makingRoom.currentRoomIndex);
-        makingRoom.currentRoomIndex++;
-
-        RoomPopup.SetActive(true);
-
-        // 방 제목 설정
-        string currentRoomName = PhotonNetwork.CurrentRoom.Name;
-        if (RoomNameTitle != null)
+        if (RoomPopup != null)
         {
-            RoomNameTitle.text = currentRoomName;
+            RoomPopup.SetActive(true);
         }
 
+        // 방 제목 설정
+        if (RoomNameTitle != null)
+        {
+            RoomNameTitle.text = PhotonNetwork.CurrentRoom.Name;
+        }
+
+        // 플레이어 이름 업데이트
+        UpdatePlayerNames();
+
+        // 기존 로직 유지
+        if (PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers)
+        {
+            WaitText.gameObject.SetActive(false);
+            GameStartText.gameObject.SetActive(true);
+            RoomExitBtn.gameObject.SetActive(false);
+            StartCoroutine(LoadAbilitySelectScene());
+        }
+        else
+        {
+            WaitText.gameObject.SetActive(true);
+            GameStartText.gameObject.SetActive(false);
+        }
+
+    }
+    private void UpdatePlayerNames()
+    {
         // 방장의 닉네임 가져오기
         string hostPlayerName = null;
+        string visitorPlayerName = null;
+
         foreach (var player in PhotonNetwork.CurrentRoom.Players.Values)
         {
             if (player.IsMasterClient) // 방장 확인
             {
                 hostPlayerName = player.NickName;
-                break;
+            }
+            else
+            {
+                visitorPlayerName = player.NickName; // 방장이 아닌 첫 번째 방문자 닉네임 가져오기
             }
         }
 
@@ -460,32 +520,20 @@ public class PhotonInit : MonoBehaviourPunCallbacks
             HostPlayer.text = hostPlayerName ?? "알 수 없음";
         }
 
-        //// 현재 플레이어가 입장한 닉네임을 방문자로 표시
-        //if (VisitEmptyName != null && VisitPlayer != null)
-        //{
-        //    VisitPlayer.text = PhotonNetwork.LocalPlayer.NickName; // 현재 플레이어의 닉네임
-        //    VisitEmptyName.gameObject.SetActive(false);
-        //    VisitPlayer.gameObject.SetActive(true);
-        //}
-
-        // 방이 꽉 찼을 때 게임 시작 조건 체크
-        if (PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers)
+        // 방문자 이름 UI 설정
+        if (VisitPlayer != null)
         {
-            WaitText.gameObject.SetActive(false);       // 대기 문구 숨김
-            GameStartText.gameObject.SetActive(true);   // 게임 시작 문구 표시
-            RoomExitBtn.gameObject.SetActive(false);    // 나가기 버튼 비활성화
-            isGameStart = true;
-
-            Debug.Log("방이 꽉 찼습니다. 게임을 시작합니다!");
-
-            // 씬 로드
-            StartCoroutine(LoadAbilitySelectScene());
-        }
-        else
-        {
-            // 방이 아직 꽉 차지 않았으면 대기 문구 표시
-            WaitText.gameObject.SetActive(true);
-            GameStartText.gameObject.SetActive(false);
+            if (!string.IsNullOrEmpty(visitorPlayerName))
+            {
+                VisitPlayer.text = visitorPlayerName;
+                VisitPlayer.gameObject.SetActive(true);
+                VisitEmptyName.gameObject.SetActive(false);
+            }
+            else
+            {
+                VisitPlayer.gameObject.SetActive(false);
+                VisitEmptyName.gameObject.SetActive(true);
+            }
         }
     }
     private IEnumerator LoadAbilitySelectScene()
@@ -749,7 +797,21 @@ public class PhotonInit : MonoBehaviourPunCallbacks
             Debug.Log($"아직 모든 방이 활성화되지 않았습니다. FullRoomImage 비활성화. (활성화된 방 개수: {activeRoomCount})");
         }
     }
-
+    public void SpawnPlayer()
+    {
+        if (PhotonNetwork.IsConnected && playerPrefab != null)
+        {
+            Vector3 spawnPosition = PhotonNetwork.IsMasterClient ?
+                new Vector3(-5, 0, 0) : new Vector3(5, 0, 0); // 마스터 클라이언트는 왼쪽, 다른 클라이언트는 오른쪽
+            PhotonNetwork.Instantiate(playerPrefab.name, spawnPosition, Quaternion.identity);
+            Debug.Log("플레이어가 스폰되었습니다.");
+        }
+        else
+        {
+            Debug.LogError("Player Prefab이 없거나 Photon에 연결되어 있지 않습니다!");
+        }
+    }
+   
     //public override void OnRoomListUpdate(List<RoomInfo> roomList)
     //{
     //    Debug.Log("OnRoomListUpdate:" + roomList.Count);

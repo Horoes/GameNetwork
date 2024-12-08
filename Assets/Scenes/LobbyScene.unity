@@ -490,7 +490,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &225141887
 RectTransform:
   m_ObjectHideFlags: 0
@@ -740,7 +740,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &337911330
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5230,10 +5230,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: PhotonManager
       objectReference: {fileID: 0}
-    - target: {fileID: 8039905935054213998, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
-      propertyPath: sceneViewId
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 8713615462019582316, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -5274,8 +5270,7 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 8039905935054213998, guid: 648b107dc3e10844293e12d800889b2c, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
