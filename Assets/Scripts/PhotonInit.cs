@@ -607,7 +607,7 @@ public class PhotonInit : MonoBehaviourPunCallbacks
         Debug.Log($"Player {prefabName} spawned at {spawnPosition}");
 
         // 플레이어 이름 설정
-        playerRect.GetComponent<PlayerCtrl>().SetPlayerName(playerName);
+        //playerRect.GetComponent<PlayerCtrl>().SetPlayerName(playerName);
 
         yield return null;
     }

@@ -5,6 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - BULLET
+  - Traps
+  - Walls
+  - Players
   layers:
   - Default
   - TransparentFX

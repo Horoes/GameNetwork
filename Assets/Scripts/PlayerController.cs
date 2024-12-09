@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 {
     private int maxHp = 100;
-    private int currentHp;
+    public int currentHp;
     private Transform healthBarTransform;
 
     private Slider healthBarSlider;
@@ -58,7 +58,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         if (pv.IsMine)
         {
             HandleInput();
-            
+
         }
         if (photonView.IsMine)
         {
@@ -144,44 +144,69 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     {
         if (stream.IsWriting)
         {
-            // 내가 제어하는 플레이어 데이터 전송
+            // 데이터 전송
             stream.SendNext(rb.position);
             stream.SendNext(rb.velocity);
             stream.SendNext(currentHp);
         }
         else
         {
-            // 다른 플레이어로부터 데이터 수신
-            if (stream.Count >= 3) // 데이터가 2개 이상인지 확인
+            // 데이터 수신
+            networkPosition = (Vector2)stream.ReceiveNext();
+            rb.velocity = (Vector2)stream.ReceiveNext();
+
+            // 체력 값은 로컬 소유자가 아닌 경우만 업데이트
+            if (!photonView.IsMine)
             {
-                networkPosition = (Vector2)stream.ReceiveNext();
-                rb.velocity = (Vector2)stream.ReceiveNext();
-                currentHp = (int)stream.ReceiveNext();
+                int receivedHp = (int)stream.ReceiveNext();
+                currentHp = receivedHp;
+
+                Debug.Log($"[OnPhotonSerializeView] Received HP: {currentHp}");
+
+                // UI 업데이트
                 if (healthBarSlider != null)
                 {
                     healthBarSlider.value = currentHp;
+                    Debug.Log($"[OnPhotonSerializeView] Health bar slider updated to: {healthBarSlider.value}");
                 }
-            }
-            else
-            {
-                Debug.LogWarning("Insufficient data received in PhotonStream.");
             }
         }
     }
 
-    public void TakeDamage(int damage)
+    [PunRPC]
+    public void TakeDamageRPC(int damage)
     {
-        if (pv.IsMine)
+        if (photonView.IsMine) // 로컬 소유자인 경우
         {
             currentHp -= damage;
             if (currentHp < 0) currentHp = 0;
 
+            Debug.Log($"[TakeDamageRPC] Local player HP updated: {currentHp}");
+
+            // UI 업데이트
             if (healthBarSlider != null)
             {
-                healthBarSlider.value = currentHp; // 체력바 업데이트
+                healthBarSlider.value = currentHp;
             }
 
-            Debug.Log($"HP: {currentHp}");
+            // 체력 동기화
+            photonView.RPC("UpdateHealth", RpcTarget.Others, currentHp);
+        }
+    }
+
+
+    [PunRPC]
+    void UpdateHealth(int newHp)
+    {
+        currentHp = newHp;
+
+        Debug.Log($"[UpdateHealth] HP updated to: {currentHp}");
+
+        // UI 업데이트
+        if (healthBarSlider != null)
+        {
+            healthBarSlider.value = currentHp;
+            Debug.Log($"[UpdateHealth] Health bar slider updated to: {healthBarSlider.value}");
         }
     }
 

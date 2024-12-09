@@ -1,39 +1,69 @@
-using System.Collections;
-using System.Collections.Generic;
+using Photon.Pun;
 using UnityEngine;
+using System.Collections;
 
-public class Bullet : MonoBehaviour
+public class Bullet : MonoBehaviourPun
 {
-    public string owner = "";
-    public float speed = 30.0f;
-    public float fireRange = 300.0f;
-    public float damage = 10.0f;
+    public float lifetime = 5f;
 
-    private Transform tr;
-    private Vector3 spawnPoint;
-
-    // Start is called before the first frame update
-    void Start()
+    [PunRPC]
+    public void InitializeBullet(Vector3 velocity)
     {
-        tr = GetComponent<Transform>();
-        spawnPoint = tr.position;
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        rb.velocity = velocity;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Start()
     {
-        tr.Translate(Vector3.forward * Time.deltaTime * speed);
+        StartCoroutine(DestroyAfterTime());
+    }
 
-        if ((spawnPoint - tr.position).sqrMagnitude > fireRange)
+    private IEnumerator DestroyAfterTime()
+    {
+        yield return new WaitForSeconds(0.1f);
+
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb.velocity == Vector2.zero)
         {
-            StartCoroutine(this.DestroyBullet());
+            if (photonView.IsMine)
+            {
+                PhotonNetwork.Destroy(gameObject);
+            }
+            yield break;
+        }
+
+        yield return new WaitForSeconds(lifetime - 0.1f);
+        if (photonView.IsMine || PhotonNetwork.IsMasterClient)
+        {
+            PhotonNetwork.Destroy(gameObject);
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (!photonView.IsMine) return;
+
+        if (collision.CompareTag("Players"))
+        {
+            PlayerController player = collision.GetComponent<PlayerController>();
+            if (player != null)
+            {
+                player.photonView.RPC("TakeDamageRPC", player.photonView.Owner, 10);
+            }
+
+            if (photonView.IsMine || PhotonNetwork.IsMasterClient)
+            {
+                PhotonNetwork.Destroy(gameObject);
+            }
+        }
+        else if (collision.CompareTag("Walls"))
+        {
+            if (photonView.IsMine || PhotonNetwork.IsMasterClient)
+            {
+                PhotonNetwork.Destroy(gameObject);
+            }
         }
     }
 
 
-    IEnumerator DestroyBullet()
-    {
-        Destroy(gameObject);
-        yield return null;
-    }
 }
