@@ -1,11 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using Photon.Pun;
+using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
-    public Transform[] spawnPoints; // 스폰 포인트 배열
+    public Transform[] spawnPoints;
 
     void Start()
     {
@@ -13,25 +11,25 @@ public class SpawnManager : MonoBehaviour
         {
             SpawnPlayer();
         }
-        else
-        {
-            Debug.LogError("Photon에 연결되어 있지 않습니다!");
-        }
     }
 
     void SpawnPlayer()
     {
+        GameObject player;
         if (PhotonNetwork.LocalPlayer.IsMasterClient)
         {
-            // 마스터 클라이언트는 첫 번째 스폰 포인트
-            PhotonNetwork.Instantiate("Player1", spawnPoints[0].position, Quaternion.identity);
+            player = PhotonNetwork.Instantiate("Player1", spawnPoints[0].position, Quaternion.identity);
         }
         else
         {
-            // 다른 클라이언트는 두 번째 스폰 포인트
-            PhotonNetwork.Instantiate("Player2", spawnPoints[1].position, Quaternion.identity);
+            player = PhotonNetwork.Instantiate("Player2", spawnPoints[1].position, Quaternion.identity);
         }
 
-        Debug.Log("플레이어가 스폰되었습니다.");
+        // 총 인스턴스 생성 및 연결
+        GameObject gun = PhotonNetwork.Instantiate("Gun", player.transform.position, Quaternion.identity);
+        gun.GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.LocalPlayer);
+        player.GetComponent<PlayerController>().gun = gun; // 총을 플레이어의 컨트롤러에 할당
+
+        Debug.Log("플레이어와 총이 스폰되었습니다.");
     }
 }

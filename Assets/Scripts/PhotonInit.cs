@@ -71,7 +71,8 @@ public class PhotonInit : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-
+        PhotonNetwork.SendRate = 30; // 초당 30번의 메시지 전송
+        PhotonNetwork.SerializationRate = 30; // 초당 30번의 동기화 처리
         RoomPopup.SetActive(false);
     }
     public void EndRound(int winningPlayerIndex)    // 라운드 종료 시 실행

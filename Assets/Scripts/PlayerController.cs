@@ -2,6 +2,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using System.Collections;
 using UnityEngine;
+using ExitGames.Client.Photon;
 
 public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 {
@@ -15,6 +16,8 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     private Transform tr;
     private PhotonView pv;
     private bool isGrounded = false; // 바닥 여부
+    public GameObject gun; // Inspector에서 설정
+    public float gunDistance = 1.5f; // 총과 플레이어 사이의 거리
 
     private void Awake()
     {
@@ -23,7 +26,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         pv = GetComponent<PhotonView>();
 
         // PhotonView의 ObservedComponents 설정
-        if (pv.ObservedComponents.Count == 0)
+        if (!pv.ObservedComponents.Contains(this))
         {
             pv.ObservedComponents.Add(this);
         }
@@ -38,6 +41,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         {
             rb.velocity = Vector2.zero;
         }
+
     }
 
     private void Update()
@@ -45,6 +49,10 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         if (pv.IsMine)
         {
             HandleInput();
+        }
+        if (photonView.IsMine)
+        {
+            PositionGun();
         }
     }
 
@@ -76,7 +84,10 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         else
         {
             // 네트워크로 동기화된 위치로 부드럽게 이동
-            rb.position = Vector2.Lerp(rb.position, networkPosition, Time.fixedDeltaTime * 10f);
+            if (networkPosition != Vector2.zero)
+            {
+                rb.position = Vector2.Lerp(rb.position, networkPosition, Time.fixedDeltaTime * 10f);
+            }
         }
     }
 
@@ -97,8 +108,15 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         else
         {
             // 다른 플레이어로부터 데이터 수신
-            networkPosition = (Vector2)stream.ReceiveNext();
-            rb.velocity = (Vector2)stream.ReceiveNext();
+            if (stream.Count >= 2) // 데이터가 2개 이상인지 확인
+            {
+                networkPosition = (Vector2)stream.ReceiveNext();
+                rb.velocity = (Vector2)stream.ReceiveNext();
+            }
+            else
+            {
+                Debug.LogWarning("Insufficient data received in PhotonStream.");
+            }
         }
     }
 
@@ -125,5 +143,47 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     private int GetPlayerIndex()
     {
         return PhotonNetwork.IsMasterClient ? 0 : 1; // 마스터 클라이언트는 0, 다른 클라이언트는 1
+    }
+
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            // 현재 상태를 새로 들어온 플레이어에게 전송
+            object[] data = { rb.position, rb.velocity, currentHp };
+            PhotonNetwork.RaiseEvent(0, data, new RaiseEventOptions { TargetActors = new int[] { newPlayer.ActorNumber } }, SendOptions.SendReliable);
+        }
+    }
+
+    private void OnEnable()
+    {
+        PhotonNetwork.NetworkingClient.EventReceived += OnEventReceived;
+    }
+
+    private void OnDisable()
+    {
+        PhotonNetwork.NetworkingClient.EventReceived -= OnEventReceived;
+    }
+
+    private void OnEventReceived(ExitGames.Client.Photon.EventData photonEvent)
+    {
+        if (photonEvent.Code == 0) // 초기화 이벤트 코드
+        {
+            object[] data = (object[])photonEvent.CustomData;
+            networkPosition = (Vector2)data[0];
+            rb.velocity = (Vector2)data[1];
+            currentHp = (int)data[2];
+        }
+    }
+    void PositionGun()
+    {
+        Vector3 mousePosition = Input.mousePosition;
+        mousePosition = Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, Camera.main.transform.position.z - transform.position.z));
+
+        Vector3 direction = mousePosition - transform.position;
+        direction.z = 0; // 2D 게임의 경우 z축 방향을 0으로 설정
+
+        gun.transform.position = transform.position + direction.normalized * gunDistance;
+        gun.transform.up = direction; // 총이 마우스 위치를 바라보게 함
     }
 }

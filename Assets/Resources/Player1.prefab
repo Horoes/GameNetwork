@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 4172724422808186833}
   - component: {fileID: 330361100292911802}
   - component: {fileID: 5299195991366515333}
+  - component: {fileID: 5609136000030709370}
   m_Layer: 0
   m_Name: Player1
   m_TagString: Untagged
@@ -145,6 +146,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95b11ffe9336b6645b263c4cc9d9c399, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gun: {fileID: 1034878851069884851, guid: 935737ce14a6c4b4b97bf5538411a14b, type: 3}
+  gunDistance: 1
 --- !u!50 &330361100292911802
 Rigidbody2D:
   serializedVersion: 4
@@ -192,6 +195,23 @@ MonoBehaviour:
   observableSearch: 2
   ObservedComponents:
   - {fileID: 4172724422808186833}
+  - {fileID: 5609136000030709370}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
+--- !u!114 &5609136000030709370
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8170997429247699585}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SynchronizePosition: 1
+  m_SynchronizeRotation: 1
+  m_SynchronizeScale: 0
+  m_UseLocal: 1
