@@ -3,11 +3,17 @@ using Photon.Realtime;
 using System.Collections;
 using UnityEngine;
 using ExitGames.Client.Photon;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 {
     private int maxHp = 100;
     private int currentHp;
+    private Transform healthBarTransform;
+
+    private Slider healthBarSlider;
+
+
     private float speed = 10f;        // 이동 속도
     private float jumpForce = 13f;    // 점프 힘
     private Rigidbody2D rb;
@@ -42,17 +48,54 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             rb.velocity = Vector2.zero;
         }
 
+        InitializeHealthBar();
+
     }
 
     private void Update()
     {
+        UpdateHealthBarPosition();
         if (pv.IsMine)
         {
             HandleInput();
+            
         }
         if (photonView.IsMine)
         {
             PositionGun();
+
+        }
+    }
+    private void InitializeHealthBar()
+    {
+        // Canvas에 체력바 생성
+        GameObject canvas = GameObject.Find("Canvas"); // Canvas를 찾음
+        GameObject healthBarPrefab = Resources.Load<GameObject>("HealthBarPrefab");
+        GameObject healthBarInstance = Instantiate(healthBarPrefab, canvas.transform);
+
+        // Slider 컴포넌트 연결
+        healthBarSlider = healthBarInstance.GetComponent<Slider>();
+        healthBarTransform = healthBarInstance.transform;
+
+        // 초기 체력바 설정
+        healthBarSlider.maxValue = maxHp;
+        healthBarSlider.value = currentHp;
+
+        // Fill 색상 설정 (빨간색)
+        Image fillImage = healthBarInstance.transform.Find("Fill Area/Fill").GetComponent<Image>();
+        fillImage.color = Color.red;
+
+        // Background 색상 설정 (회색)
+        Image backgroundImage = healthBarInstance.transform.Find("Background").GetComponent<Image>();
+        backgroundImage.color = Color.gray;
+    }
+
+    private void UpdateHealthBarPosition()
+    {
+        if (healthBarTransform != null)
+        {
+            Vector3 screenPosition = Camera.main.WorldToScreenPoint(transform.position + new Vector3(0, 1.0f, 0));
+            healthBarTransform.position = screenPosition;
         }
     }
 
@@ -104,14 +147,20 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             // 내가 제어하는 플레이어 데이터 전송
             stream.SendNext(rb.position);
             stream.SendNext(rb.velocity);
+            stream.SendNext(currentHp);
         }
         else
         {
             // 다른 플레이어로부터 데이터 수신
-            if (stream.Count >= 2) // 데이터가 2개 이상인지 확인
+            if (stream.Count >= 3) // 데이터가 2개 이상인지 확인
             {
                 networkPosition = (Vector2)stream.ReceiveNext();
                 rb.velocity = (Vector2)stream.ReceiveNext();
+                currentHp = (int)stream.ReceiveNext();
+                if (healthBarSlider != null)
+                {
+                    healthBarSlider.value = currentHp;
+                }
             }
             else
             {
@@ -125,8 +174,12 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         if (pv.IsMine)
         {
             currentHp -= damage;
-            if (currentHp < 0)
-                currentHp = 0;
+            if (currentHp < 0) currentHp = 0;
+
+            if (healthBarSlider != null)
+            {
+                healthBarSlider.value = currentHp; // 체력바 업데이트
+            }
 
             Debug.Log($"HP: {currentHp}");
         }
@@ -185,5 +238,13 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 
         gun.transform.position = transform.position + direction.normalized * gunDistance;
         gun.transform.up = direction; // 총이 마우스 위치를 바라보게 함
+    }
+
+    private void OnDestroy()
+    {
+        if (healthBarTransform != null)
+        {
+            Destroy(healthBarTransform.gameObject); // 체력바 제거
+        }
     }
 }
