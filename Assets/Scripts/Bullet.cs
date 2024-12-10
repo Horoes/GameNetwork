@@ -7,10 +7,13 @@ public class Bullet : MonoBehaviourPun
     public float lifetime = 5f;
 
     [PunRPC]
-    public void InitializeBullet(Vector3 velocity)
+    public void InitializeBullet(Vector3 velocity, float size)
     {
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
         rb.velocity = velocity;
+
+        // 크기 초기화
+        transform.localScale = Vector3.one * size;
     }
 
     private void Start()
@@ -64,6 +67,4 @@ public class Bullet : MonoBehaviourPun
             }
         }
     }
-
-
 }
