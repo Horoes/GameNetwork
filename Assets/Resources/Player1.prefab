@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 5609136000030709370}
   m_Layer: 0
   m_Name: Player1
-  m_TagString: Players
+  m_TagString: Player1
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -146,6 +146,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 95b11ffe9336b6645b263c4cc9d9c399, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentHp: 0
   gun: {fileID: 1034878851069884851, guid: 935737ce14a6c4b4b97bf5538411a14b, type: 3}
   gunDistance: 1
 --- !u!50 &330361100292911802

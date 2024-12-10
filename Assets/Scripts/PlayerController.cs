@@ -14,7 +14,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     private Slider healthBarSlider;
 
 
-    private float speed = 10f;        // 이동 속도
+    private float speed = 5f;        // 이동 속도
     private float jumpForce = 13f;    // 점프 힘
     private Rigidbody2D rb;
     private Vector2 input;
@@ -63,7 +63,11 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         if (photonView.IsMine)
         {
             PositionGun();
-
+            if (Input.GetKeyDown(KeyCode.P))
+            {
+                float newSpeed = speed * 2f; // 이동 속도 2배 증가
+                photonView.RPC("UpdateSpeed", RpcTarget.All, newSpeed);
+            }
         }
     }
     private void InitializeHealthBar()
@@ -133,6 +137,13 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             }
         }
     }
+    [PunRPC]
+    public void UpdateSpeed(float newSpeed)
+    {
+        speed = newSpeed;
+
+        Debug.Log($"[UpdateSpeed] Player speed updated to: {speed}");
+    }
 
     private void Jump()
     {
@@ -148,12 +159,14 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             stream.SendNext(rb.position);
             stream.SendNext(rb.velocity);
             stream.SendNext(currentHp);
+            stream.SendNext(speed); // 속도 동기화
         }
         else
         {
             // 데이터 수신
             networkPosition = (Vector2)stream.ReceiveNext();
             rb.velocity = (Vector2)stream.ReceiveNext();
+            speed = (float)stream.ReceiveNext(); // 수신된 속도 적용
 
             // 체력 값은 로컬 소유자가 아닌 경우만 업데이트
             if (!photonView.IsMine)
