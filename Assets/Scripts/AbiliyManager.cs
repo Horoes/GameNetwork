@@ -158,6 +158,6 @@ public class AbilityManager : MonoBehaviourPunCallbacks
     private IEnumerator LoadFirstMapScene()
     {
         yield return new WaitForSeconds(3f);
-        PhotonNetwork.LoadLevel("MapScene02");
+        PhotonNetwork.LoadLevel("FirstMapScene");
     }
 }

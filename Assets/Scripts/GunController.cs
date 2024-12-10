@@ -21,7 +21,7 @@ public class GunController : MonoBehaviourPun, IPunObservable
             }
 
             // L 키: 총알 속도 증가
-            if (Input.GetKeyDown(KeyCode.L))
+            if (Input.GetKeyDown(KeyCode.I))
             {
                 bulletSpeed *= 2f; // 속도 2배 증가
                 photonView.RPC("UpdateBulletSpeed", RpcTarget.All, bulletSpeed);
@@ -47,7 +47,7 @@ public class GunController : MonoBehaviourPun, IPunObservable
             }
 
             // J 키: 30도 낮은 각도로 추가 발사
-            if (Input.GetKeyDown(KeyCode.J))
+            if (Input.GetKeyDown(KeyCode.O))
             {
                 Debug.Log("a");
                 Vector3 velocity1 = firePoint.up * bulletSpeed; // 기본 방향 총알

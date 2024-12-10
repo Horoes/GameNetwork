@@ -147,7 +147,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentHp: 0
-  gun: {fileID: 0}
+  gun: {fileID: 1034878851069884851, guid: 935737ce14a6c4b4b97bf5538411a14b, type: 3}
   gunDistance: 1
 --- !u!50 &330361100292911802
 Rigidbody2D:

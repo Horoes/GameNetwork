@@ -63,7 +63,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         if (photonView.IsMine)
         {
             PositionGun();
-            if (Input.GetKeyDown(KeyCode.P))
+            if (Input.GetKeyDown(KeyCode.L))
             {
                 float newSpeed = speed * 2f; // 이동 속도 2배 증가
                 photonView.RPC("UpdateSpeed", RpcTarget.All, newSpeed);
