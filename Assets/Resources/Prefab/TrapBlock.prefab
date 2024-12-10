@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7106397350994888017}
   - component: {fileID: 9024212650100609564}
   - component: {fileID: 3696527775078177648}
+  - component: {fileID: 2944111680553852621}
   m_Layer: 0
   m_Name: TrapBlock
   m_TagString: Traps
@@ -114,9 +115,22 @@ CircleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.50000006
+--- !u!114 &2944111680553852621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 772277149620798046}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ed7bb68db36523b44893b9938ce74580, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  knockbackForce: 400

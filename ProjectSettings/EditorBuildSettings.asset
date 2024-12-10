@@ -60,4 +60,16 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/BattleScenes/FirstMapScene.unity
     guid: 178fefd12e3bdcb479a16461b134567e
+  - enabled: 1
+    path: Assets/Scenes/BattleScenes/MapScene02.unity
+    guid: b2d47f2852a06044a9080bbbeb14c424
+  - enabled: 1
+    path: Assets/Scenes/BattleScenes/MapScene03.unity
+    guid: 1d29fb3a8b7b7ad43905519e9fa61add
+  - enabled: 1
+    path: Assets/Scenes/BattleScenes/MapScene04.unity
+    guid: 74255d985054ce04da476c0632c660f0
+  - enabled: 1
+    path: Assets/Scenes/BattleScenes/MapScene05.unity
+    guid: dab780233be5ee54f94bc8ad42d51622
   m_configObjects: {}

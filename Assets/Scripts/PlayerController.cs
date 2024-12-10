@@ -68,6 +68,10 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
                 float newSpeed = speed * 2f; // 이동 속도 2배 증가
                 photonView.RPC("UpdateSpeed", RpcTarget.All, newSpeed);
             }
+            if (Input.GetKeyDown(KeyCode.M)) // M 키로 테스트
+            {
+                UpdateMaxHealth(200); // 자신만 최대 체력을 200으로 변경
+            }
         }
     }
     private void InitializeHealthBar()
@@ -156,35 +160,39 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         if (stream.IsWriting)
         {
             // 데이터 전송
-            stream.SendNext(rb.position);
-            stream.SendNext(rb.velocity);
-            stream.SendNext(currentHp);
-            stream.SendNext(speed); // 속도 동기화
+            stream.SendNext(rb.position);  // Vector2
+            stream.SendNext(rb.velocity); // Vector2
+            stream.SendNext(currentHp);   // int
+            stream.SendNext(speed);       // float
         }
         else
         {
             // 데이터 수신
             networkPosition = (Vector2)stream.ReceiveNext();
             rb.velocity = (Vector2)stream.ReceiveNext();
-            speed = (float)stream.ReceiveNext(); // 수신된 속도 적용
 
-            // 체력 값은 로컬 소유자가 아닌 경우만 업데이트
+            // 체력 값과 속도는 순서에 따라 수신
             if (!photonView.IsMine)
             {
-                int receivedHp = (int)stream.ReceiveNext();
-                currentHp = receivedHp;
+                currentHp = (int)stream.ReceiveNext(); // int로 체력 수신
+            }
+            else
+            {
+                stream.ReceiveNext(); // currentHp를 스킵 (자신의 체력은 업데이트하지 않음)
+            }
 
-                Debug.Log($"[OnPhotonSerializeView] Received HP: {currentHp}");
+            speed = (float)stream.ReceiveNext(); // float로 속도 수신
 
-                // UI 업데이트
-                if (healthBarSlider != null)
-                {
-                    healthBarSlider.value = currentHp;
-                    Debug.Log($"[OnPhotonSerializeView] Health bar slider updated to: {healthBarSlider.value}");
-                }
+            // 체력 UI 업데이트
+            if (!photonView.IsMine && healthBarSlider != null)
+            {
+                healthBarSlider.value = currentHp;
+                Debug.Log($"[OnPhotonSerializeView] Health bar slider updated to: {healthBarSlider.value}");
             }
         }
     }
+
+
 
     [PunRPC]
     public void TakeDamageRPC(int damage)
@@ -206,7 +214,27 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             photonView.RPC("UpdateHealth", RpcTarget.Others, currentHp);
         }
     }
+    [PunRPC]
+    public void SetMaxHealth(int newMaxHp)
+    {
+        // 현재 체력을 비율로 계산
+        float healthPercentage = (float)currentHp / maxHp;
 
+        // 새로운 최대 체력 설정
+        maxHp = newMaxHp;
+
+        // 현재 체력을 새로운 최대 체력 비율에 맞게 조정
+        currentHp = Mathf.RoundToInt(healthPercentage * maxHp);
+
+        // Slider 값 업데이트
+        if (healthBarSlider != null)
+        {
+            healthBarSlider.maxValue = maxHp;
+            healthBarSlider.value = currentHp;
+        }
+
+        Debug.Log($"[SetMaxHealth] Max HP updated to: {maxHp}, Current HP updated to: {currentHp}");
+    }
 
     [PunRPC]
     void UpdateHealth(int newHp)
@@ -285,4 +313,13 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             Destroy(healthBarTransform.gameObject); // 체력바 제거
         }
     }
+    public void UpdateMaxHealth(int newMaxHp)
+    {
+        // 자신의 클라이언트에서만 최대 체력 변경
+        if (photonView.IsMine)
+        {
+            photonView.RPC("SetMaxHealth", photonView.Owner, newMaxHp);
+        }
+    }
+
 }

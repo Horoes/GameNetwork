@@ -46,7 +46,7 @@ public class Bullet : MonoBehaviourPun
     {
         if (!photonView.IsMine) return;
 
-        if (collision.CompareTag("Players1")|| collision.CompareTag("Players2"))
+        if (collision.CompareTag("Player1")|| collision.CompareTag("Player2"))
         {
             PlayerController player = collision.GetComponent<PlayerController>();
             if (player != null)
